@@ -23,18 +23,33 @@ const CartContext = createContext<CartContextData>({} as CartContextData);
 
 export function CartProvider({ children }: CartProviderProps): JSX.Element {
   const [cart, setCart] = useState<Product[]>(() => {
-    // const storagedCart = Buscar dados do localStorage
+    const storagedCart = localStorage.getItem('@RocketShoes:cart');
 
-    // if (storagedCart) {
-    //   return JSON.parse(storagedCart);
-    // }
+    if (storagedCart) {
+      return JSON.parse(storagedCart);
+    }
 
     return [];
   });
 
   const addProduct = async (productId: number) => {
     try {
-      // TODO
+      const productIndex = cart.findIndex((product: Product) => product.id === productId);
+      let productNovo;
+      if(productIndex < 0){
+        const response = await api.get(`products/${productId}`);   
+        productNovo = response.data;              
+
+        localStorage.setItem('@RocketShoes:cart', JSON.stringify(cart));         
+        setCart([...cart, {...productNovo, amount: 1 }]);
+        return;
+      }     
+
+      productNovo = cart[productIndex];
+      productNovo.amount += productNovo.amount;      
+      cart.splice(productIndex, 1, productNovo);   
+      localStorage.setItem('@RocketShoes:cart', JSON.stringify(cart)); 
+      setCart([...cart]);
     } catch {
       // TODO
     }
@@ -42,7 +57,13 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
 
   const removeProduct = (productId: number) => {
     try {
-      // TODO
+      const productIndex = cart.findIndex((product: Product) => product.id === productId);
+
+      if(productIndex !== -1){
+        cart.splice(productIndex, 1);
+        localStorage.setItem('@RocketShoes:cart', JSON.stringify(cart)); 
+        setCart([...cart]);
+      }
     } catch {
       // TODO
     }
