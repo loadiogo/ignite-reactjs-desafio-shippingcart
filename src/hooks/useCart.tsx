@@ -46,7 +46,7 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       }     
 
       productNovo = cart[productIndex];
-      productNovo.amount += productNovo.amount;      
+      productNovo.amount += 1;      
       cart.splice(productIndex, 1, productNovo);   
       localStorage.setItem('@RocketShoes:cart', JSON.stringify(cart)); 
       setCart([...cart]);
@@ -74,7 +74,16 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
     amount,
   }: UpdateProductAmount) => {
     try {
-      // TODO
+        if(amount > 0){
+            const productIndex = await cart.findIndex((product: Product) => product.id === productId);
+        
+
+            if(productIndex !== -1){
+              cart[productIndex].amount = amount;
+              localStorage.setItem('@RocketShoes:cart', JSON.stringify(cart)); 
+              setCart([...cart]);
+            }
+        }        
     } catch {
       // TODO
     }
